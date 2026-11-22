@@ -384,7 +384,6 @@ dialog::backdrop{background:rgba(5,2,18,.8);backdrop-filter:blur(4px)}
     <div class="galbar">
       <button class="btn arrow" id="btnPrev" type="button" aria-label="Previous photo">‹</button>
       <div class="mid" aria-live="polite"><b id="galCap">Portrait one</b><span id="galHint">Frame 1 of 6</span></div>
-      <button class="btn" id="btnPhoto" type="button">Add or change photo</button>
       <button class="btn arrow" id="btnNext" type="button" aria-label="Next photo">›</button>
     </div>
   </section>
@@ -403,7 +402,6 @@ dialog::backdrop{background:rgba(5,2,18,.8);backdrop-filter:blur(4px)}
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<input type="file" id="fileIn" accept="image/*" hidden>
 
 <!-- dialogs -->
 <dialog id="dlgMem" aria-labelledby="memT"><div class="dlg">
@@ -420,7 +418,7 @@ dialog::backdrop{background:rgba(5,2,18,.8);backdrop-filter:blur(4px)}
 <dialog id="dlgFin" aria-labelledby="finT"><div class="dlg">
   <p class="kick">The last frame</p><h2 id="finT">Happy birthday, Kaju Katli</h2>
   <div class="finframe"><div id="finBox"></div><div class="curtain" id="curtain" aria-hidden="true"><i></i><i></i></div></div>
-  <div class="row"><button class="btn" id="finPhoto" type="button">Add or change this photo</button><button class="btn primary" id="finClose" type="button">Close</button></div>
+  <div class="row"><button class="btn primary" id="finClose" type="button">Close</button></div>
 </div></dialog>
 
 <dialog id="dlgSnd" aria-labelledby="sndT"><div class="dlg">
@@ -492,7 +490,7 @@ var CONFIG={
     {t:'A wish for your sweetness',p:'May life be as sweet to you as you are to everyone else.'}
   ],
   secret:'You found every star. Here is the secret: everything I wished for you tonight is already inside you. This year, I only want you to believe it too. Now go and be the sky.',
-  /* Paste data:image/jpeg;base64,... strings here to ship photos with the page. */
+  /* Photos are added here by the developer: paste data:image/jpeg;base64,... strings. Visitors cannot upload photos. */
   photos:{p1:'',p2:'',m1:'',m2:'',m3:'',m4:'',final:''}
 };
 /* ============================================= */
@@ -879,7 +877,6 @@ var SLOTS=[
 ];
 var photos={},k0;
 for(k0 in CONFIG.photos)photos[k0]=CONFIG.photos[k0];
-try{var sv=JSON.parse(sget('kk-photos')||'{}');for(k0 in sv){if(sv[k0])photos[k0]=sv[k0]}}catch(e){}
 var N=SLOTS.length,STEP=360/N,W=200,Rr=230,angle=0,sel=0,zoom=false;
 var ring=$('#ring'),stage=$('#stage'),world=$('#world');
 var CAM='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>';
@@ -891,9 +888,9 @@ function buildRing(){
     var hang=document.createElement('div');hang.className='hang';
     var str=document.createElement('span');str.className='string';hang.appendChild(str);
     var fr=document.createElement('button');fr.type='button';fr.className='frame';fr.dataset.i=i;
-    fr.setAttribute('aria-label',s.label+(photos[s.id]?'':', empty. Use the Add or change photo button to fill it.'));
+    fr.setAttribute('aria-label',s.label+(photos[s.id]?'':', photo coming soon'));
     if(photos[s.id]){var im=document.createElement('img');im.src=photos[s.id];im.alt=s.label;im.loading='lazy';im.decoding='async';im.draggable=false;fr.appendChild(im)}
-    else{var ph=document.createElement('span');ph.className='ph';ph.innerHTML=CAM+'<b>Add a memory</b>';fr.appendChild(ph)}
+    else{var ph=document.createElement('span');ph.className='ph';ph.innerHTML=CAM+'<b>Coming soon</b>';fr.appendChild(ph)}
     var cap=document.createElement('span');cap.className='cap';cap.textContent=(s.feat?'★ ':'')+s.label;fr.appendChild(cap);
     hang.appendChild(fr);slot.appendChild(hang);ring.appendChild(slot);
   });
@@ -912,7 +909,7 @@ function applyAngle(){
     var d=(((i*STEP+angle)%360)+540)%360-180,ad=Math.abs(d);
     el.style.opacity=ad<35?1:ad<100?.6:.3;el.classList.toggle('front',i===front);
   });
-  sel=front;$('#galCap').textContent=SLOTS[front].label;$('#galHint').textContent='Frame '+(front+1)+' of '+N+(photos[SLOTS[front].id]?'':' · empty');
+  sel=front;$('#galCap').textContent=SLOTS[front].label;$('#galHint').textContent='Frame '+(front+1)+' of '+N;
 }
 function layoutRing(){
   var sw=stage.clientWidth||360;
@@ -957,35 +954,13 @@ stage.addEventListener('keydown',function(e){
 window.addEventListener('resize',function(){if(!$('#view-gallery').hidden)layoutRing()});
 
 /* photo upload */
-var fileIn=$('#fileIn'),pickTarget=null;
-function pick(id){pickTarget=id;fileIn.value='';fileIn.click()}
-function persist(){
-  var o={};for(var k in photos){if(photos[k]&&photos[k]!==CONFIG.photos[k])o[k]=photos[k]}
-  sset('kk-photos',JSON.stringify(o));
-}
 function paintFinal(){
   var box=$('#finBox');box.innerHTML='';
   var fr=document.createElement('div');fr.className='frame';
   if(photos.final){var im=document.createElement('img');im.src=photos.final;im.alt='The surprise final photograph';fr.appendChild(im)}
-  else{var ph=document.createElement('span');ph.className='ph';ph.innerHTML=CAM+'<b>Your surprise photo goes here</b>';fr.appendChild(ph)}
+  else{var ph=document.createElement('span');ph.className='ph';ph.innerHTML=CAM+'<b>A surprise is on its way</b>';fr.appendChild(ph)}
   var cap=document.createElement('span');cap.className='cap';cap.textContent='The last frame';fr.appendChild(cap);box.appendChild(fr);
 }
-fileIn.addEventListener('change',function(){
-  var f=fileIn.files&&fileIn.files[0];if(!f||!pickTarget)return;
-  var id=pickTarget,url=URL.createObjectURL(f),im=new Image();
-  im.onload=function(){
-    var m=1280,k=Math.min(1,m/Math.max(im.width,im.height)),cv=document.createElement('canvas');
-    cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
-    var data='';try{data=cv.toDataURL('image/jpeg',.86)}catch(e){}
-    URL.revokeObjectURL(url);if(!data){toast('That photo could not be processed.');return}
-    photos[id]=data;persist();buildRing();paintFinal();toast('Photo added.');
-  };
-  im.onerror=function(){URL.revokeObjectURL(url);toast('That file could not be read as an image.')};
-  im.src=url;
-});
-$('#btnPhoto').addEventListener('click',function(){pick(SLOTS[sel].id)});
-$('#finPhoto').addEventListener('click',function(){pick('final')});
-
 /* ================= SURPRISES ================= */
 var found={};
 try{JSON.parse(sget('kk-found')||'[]').forEach(function(n){found[n]=1})}catch(e){}
