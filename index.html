@@ -258,6 +258,7 @@ dialog::backdrop{background:rgba(5,2,18,.8);backdrop-filter:blur(4px)}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 </style>
+<link rel="stylesheet" href="./kaju-katli-visual-upgrade.css">
 
 <div class="nebula" aria-hidden="true"></div>
 <canvas id="stars" aria-hidden="true"></canvas>
@@ -491,7 +492,7 @@ var CONFIG={
   ],
   secret:'You found every star. Here is the secret: everything I wished for you tonight is already inside you. This year, I only want you to believe it too. Now go and be the sky.',
   /* Photos are added here by the developer: paste data:image/jpeg;base64,... strings. Visitors cannot upload photos. */
-  photos:{p1:'',p2:'',m1:'',m2:'',m3:'',m4:'',final:''}
+  photos:{p1:'assets/kaju-portrait-window.webp',p2:'assets/kaju-portrait-formal.webp',m1:'',m2:'',m3:'',m4:'',final:'assets/kaju-portrait-formal.webp'}
 };
 /* ============================================= */
 
@@ -872,7 +873,7 @@ document.addEventListener('keydown',function(e){
 
 /* ================= PHOTOS + 3D GALLERY ================= */
 var SLOTS=[
-  {id:'p1',label:'Portrait one',feat:1},{id:'p2',label:'Portrait two',feat:1},
+  {id:'p1',label:'Window-side portrait',feat:1},{id:'p2',label:'Black embroidered look',feat:1},
   {id:'m1',label:'Memory three'},{id:'m2',label:'Memory four'},{id:'m3',label:'Memory five'},{id:'m4',label:'Memory six'}
 ];
 var photos={},k0;
